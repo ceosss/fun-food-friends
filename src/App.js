@@ -125,8 +125,7 @@ class App extends Component {
                       <h3>{item.title}</h3>
                       <p>
                         brought by: {item.user}
-                        {item.user === this.state.user.displayName ||
-                        item.user === this.state.user.email ? (
+                        {item.user === this.state.username ? (
                           <button onClick={() => this.removeItem(item.id)}>
                             Remove Item
                           </button>
