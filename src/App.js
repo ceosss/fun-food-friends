@@ -19,6 +19,7 @@ class App extends Component {
     auth.onAuthStateChanged((user) => {
       if (user) {
         this.setState({ user });
+        this.setState({ username: user.displayName });
       }
     });
 
@@ -67,12 +68,11 @@ class App extends Component {
     const itemsRef = firebase.database().ref("items");
     const item = {
       title: this.state.currentItem,
-      user: this.state.username,
+      user: this.state.user.displayName,
     };
     itemsRef.push(item);
     this.setState({
       currentItem: "",
-      username: "",
     });
   };
 
@@ -89,16 +89,23 @@ class App extends Component {
             )}
           </div>
         </header>
+        {this.state.user ? (
+          <div>
+            <div className="user-profile">
+              <img src={this.state.user.photoURL} alt="user" />
+            </div>
+          </div>
+        ) : (
+          <div className="wrapper">
+            <p>
+              You must be logged in to see the potluck list and submit to it.
+            </p>
+          </div>
+        )}
         <div className="container">
           <section className="add-item">
             <form onSubmit={this.handleSubmit}>
-              <input
-                type="text"
-                name="username"
-                placeholder="What's your name?"
-                value={this.state.username}
-                onChange={this.handleChange}
-              />
+              <input value={this.state.username} onChange={this.handleChange} />
               <input
                 type="text"
                 name="currentItem"
@@ -112,15 +119,22 @@ class App extends Component {
           <section className="display-item">
             <div className="wrapper">
               <ul>
-                {this.state.items.map((item, key) => (
-                  <li key={item.id}>
-                    <h3>{item.title}</h3>
-                    <p>brought by: {item.user}</p>
-                    <button onClick={() => this.removeItem(item.id)}>
-                      Remove Item
-                    </button>
-                  </li>
-                ))}
+                {this.state.items.map((item) => {
+                  return (
+                    <li key={item.id}>
+                      <h3>{item.title}</h3>
+                      <p>
+                        brought by: {item.user}
+                        {item.user === this.state.user.displayName ||
+                        item.user === this.state.user.email ? (
+                          <button onClick={() => this.removeItem(item.id)}>
+                            Remove Item
+                          </button>
+                        ) : null}
+                      </p>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </section>
